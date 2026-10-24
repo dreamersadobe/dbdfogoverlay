@@ -1,0 +1,225 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+}
+
+/* Title bar */
+#title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-bottom: 1px solid rgba(255, 100, 50, 0.4);
+  padding: 0 8px;
+  -webkit-app-region: drag;
+  border-radius: 8px 8px 0 0;
+}
+
+#title-bar-drag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+#title-text {
+  color: #ff6b35;
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255, 107, 53, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.badge.click-through {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.badge.interactive {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.badge.opacity {
+  background: rgba(100, 181, 246, 0.2);
+  color: #64b5f6;
+  border: 1px solid rgba(100, 181, 246, 0.3);
+}
+
+#title-bar-controls {
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+
+#title-bar-controls button {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+#title-bar-controls button:hover {
+  background: rgba(255, 107, 53, 0.3);
+  color: #fff;
+  border-color: rgba(255, 107, 53, 0.5);
+}
+
+/* iframe */
+#site-frame {
+  width: 100%;
+  height: calc(100% - 32px);
+  border: none;
+  border-radius: 0 0 8px 8px;
+  background: #0a0a15;
+}
+
+/* Notification popup */
+.notification {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 26, 46, 0.95);
+  border: 1px solid rgba(255, 107, 53, 0.5);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 9999;
+  transition: opacity 0.3s, transform 0.3s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.notification.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.notification.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Help overlay */
+#help-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 21, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+#help-overlay.hidden {
+  display: none;
+}
+
+.help-content {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255, 107, 53, 0.4);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.help-content h2 {
+  color: #ff6b35;
+  font-size: 18px;
+  margin-bottom: 16px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+}
+
+.help-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.help-row:last-of-type {
+  border-bottom: none;
+}
+
+.help-row kbd {
+  background: rgba(255, 107, 53, 0.15);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  color: #ff8c5a;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: 'Consolas', monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.help-row span {
+  color: #b0b0c0;
+  font-size: 13px;
+}
+
+.help-note {
+  margin-top: 16px;
+  text-align: center;
+  color: #ffc107;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.help-note kbd {
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: #ffc107;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Consolas', monospace;
+  font-size: 11px;
+}
+
+/* Window border */
+body {
+  border: 2px solid rgba(255, 107, 53, 0.15);
+  border-radius: 8px;
+}
+
+body:hover {
+  border-color: rgba(255, 107, 53, 0.3);
+}

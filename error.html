@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0a0a15 0%, #1a1a2e 50%, #16213e 100%);
+      color: #b0b0c0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    .container { max-width: 400px; }
+    h1 { color: #ff6b35; font-size: 24px; margin-bottom: 16px; }
+    p { font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+    .url { color: #64b5f6; word-break: break-all; }
+    .hint {
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      border-radius: 8px;
+      color: #ffc107;
+      font-size: 13px;
+    }
+    kbd {
+      background: rgba(255, 107, 53, 0.15);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      color: #ff8c5a;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔥 Не удалось загрузить сайт</h1>
+    <p>Сайт <span class="url" id="url"></span> недоступен.</p>
+    <p>Проверь подключение к интернету и попробуй снова.</p>
+    <div class="hint">
+      💡 Ты можешь изменить URL в файле <kbd>config.json</kbd><br>
+      или перезагрузить через трей (ПКМ на иконку) → 🔄 Reload
+    </div>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('url').textContent = params.get('url') || 'dbdfog.ru';
+  </script>
+</body>
+</html>

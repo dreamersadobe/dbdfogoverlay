@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBD Fog Overlay</title>
+  <link rel="stylesheet" href="overlay.css">
+</head>
+<body>
+  <!-- Title bar for dragging and controls -->
+  <div id="title-bar">
+    <div id="title-bar-drag">
+      <span id="title-text">🔥 DBD Fog</span>
+      <span id="status-badge" class="badge click-through">🔓 Прозрачный</span>
+      <span id="opacity-badge" class="badge opacity">85%</span>
+    </div>
+    <div id="title-bar-controls">
+      <button id="btn-help" title="Горячие клавиши">❓</button>
+      <button id="btn-reload" title="Перезагрузить">🔄</button>
+    </div>
+  </div>
+
+  <!-- Notification popup for hotkey feedback -->
+  <div id="notification" class="notification hidden">
+    <span id="notification-text"></span>
+  </div>
+
+  <!-- The iframe that loads the site -->
+  <iframe
+    id="site-frame"
+    src="about:blank"
+    frameborder="0"
+    allowfullscreen
+  ></iframe>
+
+  <!-- Hotkey help overlay -->
+  <div id="help-overlay" class="hidden">
+    <div class="help-content">
+      <h2>⌨️ Горячие клавиши</h2>
+      <div class="help-row"><kbd>Alt+F1</kbd> <span>Показать / Скрыть оверлей</span></div>
+      <div class="help-row"><kbd>Alt+F2</kbd> <span>Вкл / Выкл управление мышью</span></div>
+      <div class="help-row"><kbd>Alt+F3</kbd> <span>Увеличить прозрачность</span></div>
+      <div class="help-row"><kbd>Ctrl+Alt+F4</kbd> <span>Уменьшить прозрачность</span></div>
+      <div class="help-row"><kbd>Alt+F5</kbd> <span>Сбросить позицию</span></div>
+      <p class="help-note">Нажми <kbd>Alt+F2</kbd> чтобы взаимодействовать с сайтом</p>
+    </div>
+  </div>
+
+  <script src="overlay.js"></script>
+</body>
+</html>
