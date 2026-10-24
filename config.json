@@ -1,5 +1,10 @@
 {
-  "url": "https://dbdfog.ru",
+  "hotkey": "F2",
+  "hideMode": "hide",
+  "opacity": 85,
+  "url": "https://dbdfog.ru/survivor-builds",
   "width": 500,
-  "height": 700
+  "height": 700,
+  "showNotifications": true,
+  "autoLaunch": false
 }

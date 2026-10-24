@@ -8,41 +8,171 @@
 </head>
 <body>
   <!-- Title bar for dragging and controls -->
-  <div id="title-bar">
+  <header id="title-bar">
     <div id="title-bar-drag">
       <span id="title-text">🔥 DBD Fog</span>
-      <span id="status-badge" class="badge click-through">🔓 Прозрачный</span>
-      <span id="opacity-badge" class="badge opacity">85%</span>
+      <span id="status-badge" class="badge active" title="Текущий статус оверлея">🟢 Мышь активна [F2]</span>
+      <span id="opacity-badge" class="badge opacity" title="Текущая непрозрачность">85%</span>
     </div>
     <div id="title-bar-controls">
-      <button id="btn-help" title="Горячие клавиши">❓</button>
-      <button id="btn-reload" title="Перезагрузить">🔄</button>
+      <button id="btn-settings" title="Настройки оверлея">⚙️</button>
+      <button id="btn-reload" title="Перезагрузить страницу">🔄</button>
+      <button id="btn-close" title="Свернуть / Вернуться в игру (Esc)">✖</button>
     </div>
-  </div>
+  </header>
 
-  <!-- Notification popup for hotkey feedback -->
-  <div id="notification" class="notification hidden">
+  <!-- Notification popup for feedback -->
+  <div id="notification" class="notification hidden" aria-live="polite">
     <span id="notification-text"></span>
   </div>
 
-  <!-- The iframe that loads the site -->
-  <iframe
-    id="site-frame"
-    src="about:blank"
-    frameborder="0"
-    allowfullscreen
-  ></iframe>
+  <!-- The iframe that loads dbdfog.ru -->
+  <main id="main-content">
+    <iframe
+      id="site-frame"
+      src="about:blank"
+      frameborder="0"
+      allowfullscreen
+    ></iframe>
+  </main>
 
-  <!-- Hotkey help overlay -->
-  <div id="help-overlay" class="hidden">
-    <div class="help-content">
-      <h2>⌨️ Горячие клавиши</h2>
-      <div class="help-row"><kbd>Alt+F1</kbd> <span>Показать / Скрыть оверлей</span></div>
-      <div class="help-row"><kbd>Alt+F2</kbd> <span>Вкл / Выкл управление мышью</span></div>
-      <div class="help-row"><kbd>Alt+F3</kbd> <span>Увеличить прозрачность</span></div>
-      <div class="help-row"><kbd>Ctrl+Alt+F4</kbd> <span>Уменьшить прозрачность</span></div>
-      <div class="help-row"><kbd>Alt+F5</kbd> <span>Сбросить позицию</span></div>
-      <p class="help-note">Нажми <kbd>Alt+F2</kbd> чтобы взаимодействовать с сайтом</p>
+  <!-- Settings Modal Dialog -->
+  <div id="settings-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="settings-title">
+          <span>⚙️ Настройки оверлея</span>
+        </div>
+        <button id="btn-modal-close" class="modal-close-btn" title="Закрыть">✖</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- 1. Hotkey Section -->
+        <section class="setting-group highlight-box">
+          <div class="setting-header">
+            <span class="setting-title">⌨️ Клавиша вызова (Триггер)</span>
+            <span class="setting-desc">Нажмите эту клавишу в игре — окно мгновенно появится и захватит мышь. Повторное нажатие вернет управление в игру.</span>
+          </div>
+
+          <div class="hotkey-recorder-box">
+            <button id="hotkey-record-btn" class="hotkey-btn" title="Нажмите, чтобы назначить новую клавишу">
+              <span id="hotkey-btn-text">F2</span>
+            </button>
+            <div id="hotkey-record-hint" class="hotkey-hint">Нажмите на кнопку выше, чтобы изменить клавишу</div>
+          </div>
+
+          <div class="presets-row">
+            <span class="presets-label">Быстрый выбор:</span>
+            <div class="presets-buttons">
+              <button type="button" class="preset-key" data-key="F2">F2</button>
+              <button type="button" class="preset-key" data-key="F3">F3</button>
+              <button type="button" class="preset-key" data-key="F4">F4</button>
+              <button type="button" class="preset-key" data-key="`">~ (Ё)</button>
+              <button type="button" class="preset-key" data-key="Alt+F1">Alt+F1</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Mode Section -->
+        <section class="setting-group">
+          <div class="setting-header">
+            <span class="setting-title">🪟 Режим при скрытии</span>
+            <span class="setting-desc">Что происходит при повторном нажатии клавиши вызова:</span>
+          </div>
+          <div class="radio-cards">
+            <label class="radio-card">
+              <input type="radio" name="hideMode" value="hide" id="mode-hide" checked>
+              <div class="card-ui">
+                <span class="card-radio-dot"></span>
+                <div class="card-text">
+                  <strong class="card-title">🙈 Полностью скрывать окно</strong>
+                  <span class="card-desc">Оверлей исчезает с экрана и не мешает обзору в игре</span>
+                </div>
+              </div>
+            </label>
+
+            <label class="radio-card">
+              <input type="radio" name="hideMode" value="clickthrough" id="mode-clickthrough">
+              <div class="card-ui">
+                <span class="card-radio-dot"></span>
+                <div class="card-text">
+                  <strong class="card-title">👁️ Сквозной режим (HUD поверх игры)</strong>
+                  <span class="card-desc">Окно остается полупрозрачным, но все клики проходят сквозь него прямо в игру</span>
+                </div>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- 3. Opacity Section -->
+        <section class="setting-group">
+          <div class="setting-header-inline">
+            <span class="setting-title">🔅 Прозрачность оверлея</span>
+            <span id="opacity-slider-val" class="slider-badge">85%</span>
+          </div>
+          <input type="range" id="opacity-slider" min="20" max="100" step="5" value="85" class="custom-slider">
+          <div class="slider-ticks">
+            <span>20% (Прозрачно)</span>
+            <span>85% (Оптимально)</span>
+            <span>100% (Непрозрачно)</span>
+          </div>
+        </section>
+
+        <!-- 4. Window Size and Position -->
+        <section class="setting-group">
+          <div class="setting-header">
+            <span class="setting-title">📐 Размер и положение</span>
+            <span class="setting-desc">Положение и размер сохраняются автоматически при перетаскивании за шапку и растягивании окна.</span>
+          </div>
+          <div class="size-controls">
+            <div class="input-field">
+              <label for="input-width">Ширина</label>
+              <input type="number" id="input-width" min="320" max="2560" step="20" value="500">
+            </div>
+            <div class="input-field">
+              <label for="input-height">Высота</label>
+              <input type="number" id="input-height" min="320" max="1440" step="20" value="700">
+            </div>
+            <button id="btn-apply-size" class="btn secondary">Применить</button>
+            <button id="btn-reset-pos" class="btn secondary" title="Сбросить в правый верхний угол (500x700)">📍 Сбросить</button>
+          </div>
+        </section>
+
+        <!-- 5. URL Section -->
+        <section class="setting-group">
+          <div class="setting-header">
+            <span class="setting-title">🌐 Адрес сайта</span>
+          </div>
+          <div class="url-input-box">
+            <input type="url" id="input-url" value="https://dbdfog.ru" placeholder="https://dbdfog.ru">
+            <button id="btn-save-url" class="btn secondary">Сохранить</button>
+            <button id="btn-default-url" class="btn secondary" title="Вернуть https://dbdfog.ru">Сброс</button>
+          </div>
+        </section>
+
+        <!-- 6. System & Notifications -->
+        <section class="setting-group">
+          <div class="setting-header">
+            <span class="setting-title">🚀 Система и уведомления</span>
+          </div>
+          <div class="checkboxes-list">
+            <label class="custom-checkbox">
+              <input type="checkbox" id="chk-autolaunch">
+              <span class="checkbox-box"></span>
+              <span class="checkbox-label">Запускать оверлей вместе с Windows</span>
+            </label>
+            <label class="custom-checkbox">
+              <input type="checkbox" id="chk-notifications" checked>
+              <span class="checkbox-box"></span>
+              <span class="checkbox-label">Показывать всплывающие уведомления</span>
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btn-modal-done" class="btn primary">Готово</button>
+      </div>
     </div>
   </div>
 
