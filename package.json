@@ -1,7 +1,7 @@
 {
-  "name": "dbd-fog-overlay",
-  "version": "1.1.0",
-  "description": "In-game overlay for Dead by Daylight that displays dbdfog.ru builds",
+  "name": "game-overlay",
+  "version": "2.0.0",
+  "description": "Universal in-game overlay for displaying any website on top of your game",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -21,8 +21,8 @@
   },
   "dependencies": {},
   "build": {
-    "appId": "com.dbdfog.overlay",
-    "productName": "DBD Fog Overlay",
+    "appId": "com.gameoverlay.app",
+    "productName": "Game Overlay",
     "win": {
       "target": [
         "portable"

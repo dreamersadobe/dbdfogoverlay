@@ -548,6 +548,33 @@ input[type="number"]:focus, input[type="url"]:focus {
   gap: 6px;
 }
 
+.url-presets {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.preset-url {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.preset-url:hover {
+  background: rgba(255, 107, 53, 0.25);
+  border-color: var(--accent-orange);
+  color: #fff;
+}
+
 /* Buttons */
 .btn {
   padding: 6px 12px;

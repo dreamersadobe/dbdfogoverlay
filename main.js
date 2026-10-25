@@ -11,8 +11,8 @@ const DEFAULT_CONFIG = {
   hideMode: 'hide', // 'hide' (fully hidden) or 'clickthrough' (visible HUD, clicks pass through)
   opacity: 85,
   url: 'https://dbdfog.ru/survivor-builds',
-  width: 500,
-  height: 700,
+  width: 1280,
+  height: 720,
   x: null,
   y: null,
   showNotifications: true,
@@ -82,7 +82,7 @@ function createOverlayWindow() {
 
   const initialWidth = config.width || DEFAULT_CONFIG.width;
   const initialHeight = config.height || DEFAULT_CONFIG.height;
-  const initialX = typeof config.x === 'number' ? config.x : screenWidth - initialWidth - 20;
+  const initialX = typeof config.x === 'number' ? config.x : Math.round((screenWidth - initialWidth) / 2);
   const initialY = typeof config.y === 'number' ? config.y : 20;
 
   overlayWindow = new BrowserWindow({
@@ -107,7 +107,7 @@ function createOverlayWindow() {
     },
   });
 
-  // Remove X-Frame-Options and CSP headers so dbdfog.ru loads in iframe
+  // Remove X-Frame-Options and CSP headers so external sites load in iframe
   overlayWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     const responseHeaders = { ...details.responseHeaders };
     delete responseHeaders['X-Frame-Options'];
@@ -174,6 +174,21 @@ function activateOverlay() {
   updateTrayMenu();
 }
 
+function simulateClickForGameFocus() {
+  // After deactivating the overlay, simulate a mouse click so the game
+  // window underneath regains focus without needing an extra manual click.
+  // We use a short delay to ensure the overlay has released mouse events first.
+  setTimeout(() => {
+    try {
+      const { execSync } = require('child_process');
+      // Use PowerShell to simulate a mouse click at the current cursor position
+      execSync(`powershell -NoProfile -Command "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class ClickHelper{[DllImport(\\"user32.dll\\")]public static extern void mouse_event(uint dwFlags,int dx,int dy,uint dwData,int dwExtraInfo);public static void Click(){mouse_event(0x0002,0,0,0,0);mouse_event(0x0004,0,0,0,0);}}'; [ClickHelper]::Click()"`, { windowsHide: true });
+    } catch (_) {
+      // Silently fail on non-Windows or if click simulation fails
+    }
+  }, 100);
+}
+
 function deactivateOverlay() {
   if (!overlayWindow) return;
 
@@ -193,6 +208,9 @@ function deactivateOverlay() {
     overlayWindow.setIgnoreMouseEvents(true, { forward: true });
     overlayWindow.hide();
   }
+
+  // Simulate a click so the game regains input focus immediately
+  simulateClickForGameFocus();
 
   updateTrayMenu();
 }
@@ -233,7 +251,7 @@ function resetPosition() {
   const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
   const width = DEFAULT_CONFIG.width;
   const height = DEFAULT_CONFIG.height;
-  const x = screenWidth - width - 20;
+  const x = Math.round((screenWidth - width) / 2);
   const y = 20;
 
   overlayWindow.setBounds({ x, y, width, height });
@@ -259,7 +277,7 @@ function createTray() {
   }
 
   tray = new Tray(trayIcon);
-  tray.setToolTip('DBD Fog Overlay');
+  tray.setToolTip('Game Overlay');
   updateTrayMenu();
 
   tray.on('click', () => {
@@ -276,9 +294,9 @@ function createDefaultTrayIcon() {
       const idx = (y * size + x) * 4;
       const dist = Math.sqrt((x - 8) ** 2 + (y - 8) ** 2);
       if (dist < 7) {
-        canvas[idx] = 220;     // R
-        canvas[idx + 1] = 80;  // G
-        canvas[idx + 2] = 40;  // B
+        canvas[idx] = 100;     // R
+        canvas[idx + 1] = 140; // G
+        canvas[idx + 2] = 255; // B
         canvas[idx + 3] = 255; // A
       } else {
         canvas[idx + 3] = 0;   // Transparent
@@ -298,7 +316,7 @@ function updateTrayMenu() {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: `🔥 DBD Fog Overlay v${app.getVersion()}`,
+      label: `🎮 Game Overlay v${app.getVersion()}`,
       enabled: false,
     },
     { type: 'separator' },

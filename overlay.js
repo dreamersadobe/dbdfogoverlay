@@ -20,6 +20,7 @@ const hotkeyRecordBtn = document.getElementById('hotkey-record-btn');
 const hotkeyBtnText = document.getElementById('hotkey-btn-text');
 const hotkeyRecordHint = document.getElementById('hotkey-record-hint');
 const presetKeys = document.querySelectorAll('.preset-key');
+const presetUrls = document.querySelectorAll('.preset-url');
 
 const modeRadios = document.querySelectorAll('input[name="hideMode"]');
 const opacitySlider = document.getElementById('opacity-slider');
@@ -32,7 +33,6 @@ const btnResetPos = document.getElementById('btn-reset-pos');
 
 const inputUrl = document.getElementById('input-url');
 const btnSaveUrl = document.getElementById('btn-save-url');
-const btnDefaultUrl = document.getElementById('btn-default-url');
 
 const chkAutoLaunch = document.getElementById('chk-autolaunch');
 const chkNotifications = document.getElementById('chk-notifications');
@@ -42,9 +42,9 @@ let currentSettings = {
   hotkey: 'F2',
   hideMode: 'hide',
   opacity: 85,
-  url: 'https://dbdfog.ru',
-  width: 500,
-  height: 700,
+  url: '',
+  width: 1280,
+  height: 720,
   showNotifications: true,
   autoLaunch: false,
 };
@@ -292,7 +292,7 @@ btnClose.addEventListener('click', () => {
 });
 
 btnReload.addEventListener('click', () => {
-  siteFrame.src = currentSettings.url || 'https://dbdfog.ru';
+  siteFrame.src = currentSettings.url || 'about:blank';
   showNotification('🔄 Перезагрузка страницы...');
 });
 
@@ -305,11 +305,23 @@ hotkeyRecordBtn.addEventListener('click', () => {
   }
 });
 
-// Presets
+// Hotkey Presets
 presetKeys.forEach((btn) => {
   btn.addEventListener('click', () => {
     const key = btn.getAttribute('data-key');
     applyNewHotkey(key);
+  });
+});
+
+// URL Presets
+presetUrls.forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const url = btn.getAttribute('data-url');
+    inputUrl.value = url;
+    currentSettings.url = url;
+    await window.overlayAPI.saveSettings({ url });
+    siteFrame.src = url;
+    showNotification(`🌐 Загружается: ${url}`);
   });
 });
 
@@ -338,8 +350,8 @@ opacitySlider.addEventListener('input', (e) => {
 
 // Size and Position
 btnApplySize.addEventListener('click', async () => {
-  const width = Math.max(300, Math.min(2560, Number(inputWidth.value) || 500));
-  const height = Math.max(300, Math.min(1440, Number(inputHeight.value) || 700));
+  const width = Math.max(300, Math.min(2560, Number(inputWidth.value) || 1280));
+  const height = Math.max(300, Math.min(1440, Number(inputHeight.value) || 720));
 
   inputWidth.value = width;
   inputHeight.value = height;
@@ -357,26 +369,25 @@ btnResetPos.addEventListener('click', async () => {
   showNotification('📍 Позиция и размер сброшены');
 });
 
-// URL
+// URL — open button
 btnSaveUrl.addEventListener('click', async () => {
   let url = inputUrl.value.trim();
-  if (!url) url = 'https://dbdfog.ru';
+  if (!url) return showNotification('⚠️ Введите URL сайта');
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
   inputUrl.value = url;
   currentSettings.url = url;
   await window.overlayAPI.saveSettings({ url });
   siteFrame.src = url;
-  showNotification('🌐 Адрес обновлен');
+  showNotification(`🌐 Загружается: ${url}`);
 });
 
-btnDefaultUrl.addEventListener('click', async () => {
-  const url = 'https://dbdfog.ru';
-  inputUrl.value = url;
-  currentSettings.url = url;
-  await window.overlayAPI.saveSettings({ url });
-  siteFrame.src = url;
-  showNotification('🌐 Адрес сброшен на https://dbdfog.ru');
+// Also allow pressing Enter in URL input to navigate
+inputUrl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    btnSaveUrl.click();
+  }
 });
 
 // Checkboxes
@@ -422,7 +433,7 @@ window.overlayAPI.onOpenSettings(() => {
 });
 
 window.overlayAPI.onReloadWebview(() => {
-  siteFrame.src = currentSettings.url || 'https://dbdfog.ru';
+  siteFrame.src = currentSettings.url || 'about:blank';
   showNotification('🔄 Перезагрузка страницы...');
 });
 
@@ -432,7 +443,7 @@ async function init() {
   populateSettingsUI(settings);
 
   setTimeout(() => {
-    showNotification(`🔥 Оверлей готов! Нажмите [${settings.hotkey || 'F2'}] для вызова в игре`, 3500);
+    showNotification(`🎮 Оверлей готов! Нажмите [${settings.hotkey || 'F2'}] для вызова в игре`, 3500);
   }, 1000);
 }
 
