@@ -24,8 +24,8 @@
 
 ```bash
 # Клонируй репозиторий
-git clone https://github.com/dreamersadobe/dbdfogoverlay.git
-cd dbdfogoverlay
+git clone https://github.com/dreamersadobe/multioverlay.git
+cd multioverlay
 
 # Установи зависимости
 npm install
