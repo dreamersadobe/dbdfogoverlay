@@ -23,13 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts && npm rebuild
 
-      - name: Build portable exe
+      - name: Build portable application
         run: npx electron-builder --win portable
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build installer exe
-        run: npx electron-builder --win nsis
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

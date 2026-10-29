@@ -13,6 +13,10 @@ contextBridge.exposeInMainWorld('overlayAPI', {
   // Updates & external links
   getVersion: () => ipcRenderer.invoke('get-version'),
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  downloadUpdate: (url) => ipcRenderer.invoke('download-update', url),
+  cancelDownload: () => ipcRenderer.invoke('cancel-download'),
+  applyUpdate: () => ipcRenderer.invoke('apply-update'),
+  showDownloadedFile: () => ipcRenderer.invoke('show-downloaded-file'),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
 
   // Events from main process
@@ -33,5 +37,8 @@ contextBridge.exposeInMainWorld('overlayAPI', {
   },
   onUpdateCheckResult: (callback) => {
     ipcRenderer.on('update-check-result', (_, info) => callback(info));
+  },
+  onDownloadProgress: (callback) => {
+    ipcRenderer.on('download-progress', (_, data) => callback(data));
   },
 });

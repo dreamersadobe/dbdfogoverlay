@@ -567,6 +567,146 @@ ipcMain.handle('open-external', (event, url) => {
   return false;
 });
 
+// In-app updater handlers
+let currentDownloadAbortController = null;
+let downloadedUpdatePath = null;
+
+ipcMain.handle('download-update', async (event, customUrl) => {
+  try {
+    const url = customUrl || (cachedUpdateInfo && cachedUpdateInfo.downloadUrl);
+    if (!url) {
+      throw new Error('Ссылка для скачивания обновления не найдена');
+    }
+
+    currentDownloadAbortController = new AbortController();
+    const { signal } = currentDownloadAbortController;
+
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'GameOverlay-App' },
+      signal,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Сервер вернул код ${res.status}: ${res.statusText}`);
+    }
+
+    const totalBytes = parseInt(res.headers.get('content-length') || '0', 10);
+    const parsedUrl = new URL(url);
+    const rawFileName = path.basename(parsedUrl.pathname);
+    const fileName = (rawFileName && rawFileName.endsWith('.exe'))
+      ? rawFileName
+      : `Game-Overlay-${cachedUpdateInfo ? cachedUpdateInfo.latestVersion : 'Update'}.exe`;
+    const tempDir = app.getPath('temp');
+    downloadedUpdatePath = path.join(tempDir, fileName);
+
+    const { Readable } = require('stream');
+    const nodeReadable = Readable.fromWeb(res.body);
+    const fileStream = fs.createWriteStream(downloadedUpdatePath);
+
+    let downloadedBytes = 0;
+    let lastTime = Date.now();
+    let bytesSinceLast = 0;
+    let lastSpeed = '0.0';
+
+    nodeReadable.on('data', (chunk) => {
+      downloadedBytes += chunk.length;
+      bytesSinceLast += chunk.length;
+
+      const now = Date.now();
+      if (now - lastTime >= 250) {
+        const speedMBps = (bytesSinceLast / (1024 * 1024)) / ((now - lastTime) / 1000);
+        lastSpeed = speedMBps.toFixed(1);
+        lastTime = now;
+        bytesSinceLast = 0;
+
+        const percent = totalBytes > 0 ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100)) : 0;
+        const transferredMB = (downloadedBytes / (1024 * 1024)).toFixed(1);
+        const totalMB = totalBytes > 0 ? (totalBytes / (1024 * 1024)).toFixed(1) : '?';
+
+        if (overlayWindow && !overlayWindow.isDestroyed()) {
+          overlayWindow.webContents.send('download-progress', {
+            status: 'downloading',
+            percent,
+            transferredMB,
+            totalMB,
+            speed: `${lastSpeed} МБ/с`,
+          });
+        }
+      }
+    });
+
+    await new Promise((resolve, reject) => {
+      fileStream.on('finish', resolve);
+      fileStream.on('error', reject);
+      nodeReadable.on('error', reject);
+      nodeReadable.pipe(fileStream);
+    });
+
+    currentDownloadAbortController = null;
+
+    if (overlayWindow && !overlayWindow.isDestroyed()) {
+      overlayWindow.webContents.send('download-progress', {
+        status: 'completed',
+        percent: 100,
+        filePath: downloadedUpdatePath,
+      });
+    }
+
+    return { success: true, filePath: downloadedUpdatePath };
+  } catch (err) {
+    currentDownloadAbortController = null;
+    if (err.name === 'AbortError') {
+      return { success: false, cancelled: true };
+    }
+    return { success: false, error: err.message || 'Ошибка при загрузке файла' };
+  }
+});
+
+ipcMain.handle('cancel-download', () => {
+  if (currentDownloadAbortController) {
+    currentDownloadAbortController.abort();
+    currentDownloadAbortController = null;
+    if (overlayWindow && !overlayWindow.isDestroyed()) {
+      overlayWindow.webContents.send('download-progress', {
+        status: 'cancelled',
+      });
+    }
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle('apply-update', () => {
+  if (!downloadedUpdatePath || !fs.existsSync(downloadedUpdatePath)) {
+    return { success: false, error: 'Файл обновления не найден' };
+  }
+
+  try {
+    const { spawn } = require('child_process');
+    if (process.platform === 'win32') {
+      const child = spawn(downloadedUpdatePath, [], {
+        detached: true,
+        stdio: 'ignore',
+      });
+      child.unref();
+      app.quit();
+    } else {
+      shell.openPath(downloadedUpdatePath);
+    }
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('show-downloaded-file', () => {
+  if (downloadedUpdatePath && fs.existsSync(downloadedUpdatePath)) {
+    shell.showItemInFolder(downloadedUpdatePath);
+    return true;
+  }
+  return false;
+});
+
 // App Lifecycle
 app.whenReady().then(() => {
   createOverlayWindow();

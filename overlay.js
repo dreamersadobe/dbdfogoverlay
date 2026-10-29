@@ -42,8 +42,18 @@ const btnUpdateBadge = document.getElementById('btn-update-badge');
 const appVersionLabel = document.getElementById('app-version-label');
 const updateStatusText = document.getElementById('update-status-text');
 const btnCheckUpdates = document.getElementById('btn-check-updates');
-const btnDownloadPortable = document.getElementById('btn-download-portable');
-const btnDownloadInstaller = document.getElementById('btn-download-installer');
+
+const updateProgressContainer = document.getElementById('update-progress-container');
+const updateProgressLabel = document.getElementById('update-progress-label');
+const updateProgressPercent = document.getElementById('update-progress-percent');
+const updateProgressFill = document.getElementById('update-progress-fill');
+const updateProgressDetails = document.getElementById('update-progress-details');
+const updateProgressSpeed = document.getElementById('update-progress-speed');
+
+const btnStartDownload = document.getElementById('btn-start-download');
+const btnCancelDownload = document.getElementById('btn-cancel-download');
+const btnInstallRestart = document.getElementById('btn-install-restart');
+const btnShowInFolder = document.getElementById('btn-show-in-folder');
 const btnOpenRelease = document.getElementById('btn-open-release');
 
 // State
@@ -417,8 +427,11 @@ chkNotifications.addEventListener('change', async (e) => {
 });
 
 // ============ Updates Management ============
+let currentUpdateInfo = null;
+
 function renderUpdateInfo(info) {
   if (!info) return;
+  currentUpdateInfo = info;
 
   if (info.currentVersion && appVersionLabel) {
     appVersionLabel.textContent = `Текущая версия: v${info.currentVersion}`;
@@ -429,9 +442,12 @@ function renderUpdateInfo(info) {
       updateStatusText.textContent = `⚠️ ${info.error}`;
       updateStatusText.className = 'update-status-text error';
     }
-    if (btnDownloadPortable) btnDownloadPortable.classList.add('hidden');
-    if (btnDownloadInstaller) btnDownloadInstaller.classList.add('hidden');
+    if (btnStartDownload) btnStartDownload.classList.add('hidden');
+    if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
+    if (btnInstallRestart) btnInstallRestart.classList.add('hidden');
+    if (btnShowInFolder) btnShowInFolder.classList.add('hidden');
     if (btnOpenRelease) btnOpenRelease.classList.add('hidden');
+    if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
     return;
   }
 
@@ -446,25 +462,10 @@ function renderUpdateInfo(info) {
       btnUpdateBadge.textContent = `🎉 Доступно ${info.latestVersion}`;
     }
 
-    if (btnDownloadPortable) {
-      if (info.portableUrl) {
-        btnDownloadPortable.classList.remove('hidden');
-        btnDownloadPortable.textContent = '📥 Скачать Portable (.exe)';
-        btnDownloadPortable.onclick = () => window.overlayAPI.openExternal(info.portableUrl);
-      } else if (info.downloadUrl) {
-        btnDownloadPortable.classList.remove('hidden');
-        btnDownloadPortable.textContent = '📥 Скачать (.exe)';
-        btnDownloadPortable.onclick = () => window.overlayAPI.openExternal(info.downloadUrl);
-      }
-    }
-
-    if (btnDownloadInstaller) {
-      if (info.installerUrl) {
-        btnDownloadInstaller.classList.remove('hidden');
-        btnDownloadInstaller.onclick = () => window.overlayAPI.openExternal(info.installerUrl);
-      } else {
-        btnDownloadInstaller.classList.add('hidden');
-      }
+    if (btnStartDownload) {
+      btnStartDownload.classList.remove('hidden');
+      btnStartDownload.disabled = false;
+      btnStartDownload.textContent = `⚡ Скачать обновление ${info.latestVersion}`;
     }
 
     if (btnOpenRelease) {
@@ -474,16 +475,24 @@ function renderUpdateInfo(info) {
       }
     }
 
+    if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
+    if (btnInstallRestart) btnInstallRestart.classList.add('hidden');
+    if (btnShowInFolder) btnShowInFolder.classList.add('hidden');
+    if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
+
     showNotification(`🎉 Доступно обновление ${info.latestVersion}! Откройте [⚙️] для скачивания`, 4000);
   } else {
     if (updateStatusText) {
       updateStatusText.textContent = `✅ У вас установлена актуальная версия (v${info.currentVersion || ''})`;
       updateStatusText.className = 'update-status-text';
     }
-    if (btnDownloadPortable) btnDownloadPortable.classList.add('hidden');
-    if (btnDownloadInstaller) btnDownloadInstaller.classList.add('hidden');
+    if (btnStartDownload) btnStartDownload.classList.add('hidden');
+    if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
+    if (btnInstallRestart) btnInstallRestart.classList.add('hidden');
+    if (btnShowInFolder) btnShowInFolder.classList.add('hidden');
     if (btnOpenRelease) btnOpenRelease.classList.add('hidden');
     if (btnUpdateBadge) btnUpdateBadge.classList.add('hidden');
+    if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
   }
 }
 
@@ -514,6 +523,96 @@ if (btnCheckUpdates) {
     }
   });
 }
+
+// In-App Direct Download Actions
+if (btnStartDownload) {
+  btnStartDownload.addEventListener('click', async () => {
+    if (!currentUpdateInfo || !currentUpdateInfo.downloadUrl) {
+      showNotification('⚠️ Ссылка для загрузки не найдена');
+      return;
+    }
+
+    btnStartDownload.classList.add('hidden');
+    btnCheckUpdates.disabled = true;
+    if (btnCancelDownload) btnCancelDownload.classList.remove('hidden');
+    if (updateProgressContainer) updateProgressContainer.classList.remove('hidden');
+
+    updateProgressPercent.textContent = '0%';
+    updateProgressFill.style.width = '0%';
+    updateProgressDetails.textContent = 'Подключение к GitHub...';
+    updateProgressSpeed.textContent = '';
+    updateStatusText.textContent = '⏳ Загрузка обновления...';
+    updateStatusText.className = 'update-status-text';
+
+    try {
+      const res = await window.overlayAPI.downloadUpdate(currentUpdateInfo.downloadUrl);
+      if (!res.success && !res.cancelled) {
+        throw new Error(res.error || 'Ошибка скачивания файла');
+      }
+    } catch (err) {
+      updateStatusText.textContent = `⚠️ ${err.message}`;
+      updateStatusText.className = 'update-status-text error';
+      btnStartDownload.classList.remove('hidden');
+      if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
+      if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
+    } finally {
+      btnCheckUpdates.disabled = false;
+    }
+  });
+}
+
+if (btnCancelDownload) {
+  btnCancelDownload.addEventListener('click', async () => {
+    await window.overlayAPI.cancelDownload();
+    if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
+    if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
+    if (btnStartDownload) btnStartDownload.classList.remove('hidden');
+    updateStatusText.textContent = 'Загрузка отменена.';
+    showNotification('Загрузка обновления отменена');
+  });
+}
+
+if (btnInstallRestart) {
+  btnInstallRestart.addEventListener('click', async () => {
+    const res = await window.overlayAPI.applyUpdate();
+    if (!res.success) {
+      showNotification(`⚠️ ${res.error || 'Не удалось применить обновление'}`);
+    }
+  });
+}
+
+if (btnShowInFolder) {
+  btnShowInFolder.addEventListener('click', async () => {
+    await window.overlayAPI.showDownloadedFile();
+  });
+}
+
+// Download progress listener from main process
+window.overlayAPI.onDownloadProgress((data) => {
+  if (data.status === 'downloading') {
+    if (updateProgressContainer) updateProgressContainer.classList.remove('hidden');
+    updateProgressPercent.textContent = `${data.percent}%`;
+    updateProgressFill.style.width = `${data.percent}%`;
+    updateProgressDetails.textContent = `${data.transferredMB} МБ / ${data.totalMB} МБ`;
+    updateProgressSpeed.textContent = data.speed;
+  } else if (data.status === 'completed') {
+    updateProgressPercent.textContent = '100%';
+    updateProgressFill.style.width = '100%';
+    updateStatusText.textContent = '✨ Обновление успешно скачано и готово к установке!';
+    updateStatusText.className = 'update-status-text has-update';
+
+    if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
+    if (btnStartDownload) btnStartDownload.classList.add('hidden');
+    if (btnInstallRestart) btnInstallRestart.classList.remove('hidden');
+    if (btnShowInFolder) btnShowInFolder.classList.remove('hidden');
+
+    showNotification('✨ Обновление готово! Нажмите «Перезапустить и применить»', 5000);
+  } else if (data.status === 'cancelled') {
+    if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
+    if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
+    if (btnStartDownload) btnStartDownload.classList.remove('hidden');
+  }
+});
 
 if (btnUpdateBadge) {
   btnUpdateBadge.addEventListener('click', () => {
