@@ -1,6 +1,6 @@
 {
   "name": "game-overlay",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Universal in-game overlay for displaying any website on top of your game",
   "main": "main.js",
   "scripts": {
@@ -22,6 +22,7 @@
   "build": {
     "appId": "com.gameoverlay.app",
     "productName": "Game Overlay",
+    "publish": null,
     "win": {
       "target": [
         "nsis"
@@ -34,7 +35,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Game Overlay",
-      "artifactName": "${productName}-Setup-${version}.${ext}"
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "differentialPackage": false
     },
     "files": [
       "main.js",

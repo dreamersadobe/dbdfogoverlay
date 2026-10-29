@@ -24,20 +24,18 @@ jobs:
         run: npm ci --ignore-scripts && npm rebuild
 
       - name: Build NSIS installer (Setup wizard)
-        run: npx electron-builder --win nsis
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win nsis --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: dist/*.exe
+          path: dist/*-Setup-*.exe
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.exe
+          files: dist/*-Setup-*.exe
           generate_release_notes: true
           draft: false
           prerelease: false
