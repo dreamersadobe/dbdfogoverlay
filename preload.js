@@ -10,6 +10,11 @@ contextBridge.exposeInMainWorld('overlayAPI', {
   reloadWebview: () => ipcRenderer.send('reload-webview'),
   setAutoLaunch: (enable) => ipcRenderer.invoke('set-autolaunch', enable),
 
+  // Updates & external links
+  getVersion: () => ipcRenderer.invoke('get-version'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+
   // Events from main process
   onOverlayStateChanged: (callback) => {
     ipcRenderer.on('overlay-state-changed', (_, state) => callback(state));
@@ -22,5 +27,11 @@ contextBridge.exposeInMainWorld('overlayAPI', {
   },
   onReloadWebview: (callback) => {
     ipcRenderer.on('reload-webview', () => callback());
+  },
+  onUpdateAvailable: (callback) => {
+    ipcRenderer.on('update-available', (_, info) => callback(info));
+  },
+  onUpdateCheckResult: (callback) => {
+    ipcRenderer.on('update-check-result', (_, info) => callback(info));
   },
 });

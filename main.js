@@ -1,10 +1,13 @@
-const { app, BrowserWindow, globalShortcut, Tray, Menu, screen, ipcMain, nativeImage } = require('electron');
+const { app, BrowserWindow, globalShortcut, Tray, Menu, screen, ipcMain, nativeImage, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+const GITHUB_REPO = 'dreamersadobe/multioverlay';
 
 let overlayWindow = null;
 let tray = null;
 let isActive = true; // Overlay interactive status (capturing mouse or not)
+let cachedUpdateInfo = null;
 
 const DEFAULT_CONFIG = {
   hotkey: 'F2',
@@ -174,19 +177,96 @@ function activateOverlay() {
   updateTrayMenu();
 }
 
-function simulateClickForGameFocus() {
-  // After deactivating the overlay, simulate a mouse click so the game
-  // window underneath regains focus without needing an extra manual click.
-  // We use a short delay to ensure the overlay has released mouse events first.
-  setTimeout(() => {
-    try {
-      const { execSync } = require('child_process');
-      // Use PowerShell to simulate a mouse click at the current cursor position
-      execSync(`powershell -NoProfile -Command "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class ClickHelper{[DllImport(\\"user32.dll\\")]public static extern void mouse_event(uint dwFlags,int dx,int dy,uint dwData,int dwExtraInfo);public static void Click(){mouse_event(0x0002,0,0,0,0);mouse_event(0x0004,0,0,0,0);}}'; [ClickHelper]::Click()"`, { windowsHide: true });
-    } catch (_) {
-      // Silently fail on non-Windows or if click simulation fails
+function parseSemver(v) {
+  if (!v || typeof v !== 'string') return [0, 0, 0];
+  const cleaned = v.trim().replace(/^[vV]/, '');
+  const match = cleaned.match(/^(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
+  if (!match) return [0, 0, 0];
+  return [
+    parseInt(match[1], 10) || 0,
+    parseInt(match[2], 10) || 0,
+    parseInt(match[3], 10) || 0,
+  ];
+}
+
+function isNewerVersion(remote, local) {
+  const r = parseSemver(remote);
+  const l = parseSemver(local);
+  for (let i = 0; i < 3; i++) {
+    if (r[i] > l[i]) return true;
+    if (r[i] < l[i]) return false;
+  }
+  return false;
+}
+
+async function checkForUpdates() {
+  const currentVersion = app.getVersion();
+  try {
+    const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+      headers: {
+        'User-Agent': 'GameOverlay-App',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        cachedUpdateInfo = {
+          success: true,
+          hasUpdate: false,
+          currentVersion,
+          message: 'Релизы пока не найдены на GitHub',
+        };
+        return cachedUpdateInfo;
+      }
+      throw new Error(`GitHub API вернул статус ${response.status}`);
     }
-  }, 100);
+
+    const data = await response.json();
+    const latestTag = data.tag_name || '';
+    const releaseUrl = data.html_url || `https://github.com/${GITHUB_REPO}/releases/latest`;
+    const releaseName = data.name || latestTag;
+    const body = data.body || '';
+
+    let portableUrl = null;
+    let installerUrl = null;
+
+    if (Array.isArray(data.assets)) {
+      const portableAsset = data.assets.find(
+        (a) => a.name.endsWith('.exe') && !a.name.toLowerCase().includes('setup')
+      );
+      if (portableAsset) portableUrl = portableAsset.browser_download_url;
+
+      const installerAsset = data.assets.find(
+        (a) => a.name.endsWith('.exe') && a.name.toLowerCase().includes('setup')
+      );
+      if (installerAsset) installerUrl = installerAsset.browser_download_url;
+    }
+
+    const downloadUrl = portableUrl || installerUrl || releaseUrl;
+    const hasUpdate = isNewerVersion(latestTag, currentVersion);
+
+    cachedUpdateInfo = {
+      success: true,
+      hasUpdate,
+      currentVersion,
+      latestVersion: latestTag,
+      releaseUrl,
+      downloadUrl,
+      portableUrl,
+      installerUrl,
+      releaseName,
+      releaseNotes: body,
+    };
+
+    return cachedUpdateInfo;
+  } catch (err) {
+    return {
+      success: false,
+      error: err.message || 'Ошибка подключения к GitHub',
+      currentVersion,
+    };
+  }
 }
 
 function deactivateOverlay() {
@@ -208,9 +288,6 @@ function deactivateOverlay() {
     overlayWindow.setIgnoreMouseEvents(true, { forward: true });
     overlayWindow.hide();
   }
-
-  // Simulate a click so the game regains input focus immediately
-  simulateClickForGameFocus();
 
   updateTrayMenu();
 }
@@ -314,12 +391,25 @@ function updateTrayMenu() {
     ? `👁️ Скрыть оверлей (${config.hotkey})`
     : `👁️ Открыть оверлей (${config.hotkey})`;
 
-  const contextMenu = Menu.buildFromTemplate([
+  const menuTemplate = [
     {
       label: `🎮 Game Overlay v${app.getVersion()}`,
       enabled: false,
     },
     { type: 'separator' },
+  ];
+
+  if (cachedUpdateInfo && cachedUpdateInfo.hasUpdate) {
+    menuTemplate.push({
+      label: `🎉 Новая версия ${cachedUpdateInfo.latestVersion}! (Скачать)`,
+      click: () => {
+        shell.openExternal(cachedUpdateInfo.downloadUrl || cachedUpdateInfo.releaseUrl);
+      },
+    });
+    menuTemplate.push({ type: 'separator' });
+  }
+
+  menuTemplate.push(
     {
       label: triggerLabel,
       click: toggleOverlay,
@@ -343,6 +433,18 @@ function updateTrayMenu() {
       },
     },
     {
+      label: '🔍 Проверить обновления',
+      click: async () => {
+        const info = await checkForUpdates();
+        updateTrayMenu();
+        if (overlayWindow) {
+          activateOverlay();
+          overlayWindow.webContents.send('open-settings');
+          overlayWindow.webContents.send('update-check-result', info);
+        }
+      },
+    },
+    {
       label: '📍 Сбросить размер и положение',
       click: resetPosition,
     },
@@ -355,9 +457,10 @@ function updateTrayMenu() {
         }
         app.quit();
       },
-    },
-  ]);
+    }
+  );
 
+  const contextMenu = Menu.buildFromTemplate(menuTemplate);
   tray.setContextMenu(contextMenu);
 }
 
@@ -446,12 +549,41 @@ ipcMain.on('reload-webview', () => {
   }
 });
 
+ipcMain.handle('get-version', () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('check-for-updates', async () => {
+  const info = await checkForUpdates();
+  updateTrayMenu();
+  return info;
+});
+
+ipcMain.handle('open-external', (event, url) => {
+  if (url && typeof url === 'string' && /^https?:\/\//i.test(url)) {
+    shell.openExternal(url);
+    return true;
+  }
+  return false;
+});
+
 // App Lifecycle
 app.whenReady().then(() => {
   createOverlayWindow();
   registerTriggerShortcut(config.hotkey);
   createTray();
   setAutoLaunch(config.autoLaunch);
+
+  // Background check for updates after startup
+  setTimeout(async () => {
+    const info = await checkForUpdates();
+    if (info && info.hasUpdate) {
+      updateTrayMenu();
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.webContents.send('update-available', info);
+      }
+    }
+  }, 3500);
 });
 
 app.on('will-quit', () => {

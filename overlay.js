@@ -37,6 +37,15 @@ const btnSaveUrl = document.getElementById('btn-save-url');
 const chkAutoLaunch = document.getElementById('chk-autolaunch');
 const chkNotifications = document.getElementById('chk-notifications');
 
+// Update Elements
+const btnUpdateBadge = document.getElementById('btn-update-badge');
+const appVersionLabel = document.getElementById('app-version-label');
+const updateStatusText = document.getElementById('update-status-text');
+const btnCheckUpdates = document.getElementById('btn-check-updates');
+const btnDownloadPortable = document.getElementById('btn-download-portable');
+const btnDownloadInstaller = document.getElementById('btn-download-installer');
+const btnOpenRelease = document.getElementById('btn-open-release');
+
 // State
 let currentSettings = {
   hotkey: 'F2',
@@ -407,6 +416,115 @@ chkNotifications.addEventListener('change', async (e) => {
   }
 });
 
+// ============ Updates Management ============
+function renderUpdateInfo(info) {
+  if (!info) return;
+
+  if (info.currentVersion && appVersionLabel) {
+    appVersionLabel.textContent = `Текущая версия: v${info.currentVersion}`;
+  }
+
+  if (!info.success && info.error) {
+    if (updateStatusText) {
+      updateStatusText.textContent = `⚠️ ${info.error}`;
+      updateStatusText.className = 'update-status-text error';
+    }
+    if (btnDownloadPortable) btnDownloadPortable.classList.add('hidden');
+    if (btnDownloadInstaller) btnDownloadInstaller.classList.add('hidden');
+    if (btnOpenRelease) btnOpenRelease.classList.add('hidden');
+    return;
+  }
+
+  if (info.hasUpdate) {
+    if (updateStatusText) {
+      updateStatusText.textContent = `🎉 Доступна новая версия: ${info.latestVersion}!`;
+      updateStatusText.className = 'update-status-text has-update';
+    }
+
+    if (btnUpdateBadge) {
+      btnUpdateBadge.classList.remove('hidden');
+      btnUpdateBadge.textContent = `🎉 Доступно ${info.latestVersion}`;
+    }
+
+    if (btnDownloadPortable) {
+      if (info.portableUrl) {
+        btnDownloadPortable.classList.remove('hidden');
+        btnDownloadPortable.textContent = '📥 Скачать Portable (.exe)';
+        btnDownloadPortable.onclick = () => window.overlayAPI.openExternal(info.portableUrl);
+      } else if (info.downloadUrl) {
+        btnDownloadPortable.classList.remove('hidden');
+        btnDownloadPortable.textContent = '📥 Скачать (.exe)';
+        btnDownloadPortable.onclick = () => window.overlayAPI.openExternal(info.downloadUrl);
+      }
+    }
+
+    if (btnDownloadInstaller) {
+      if (info.installerUrl) {
+        btnDownloadInstaller.classList.remove('hidden');
+        btnDownloadInstaller.onclick = () => window.overlayAPI.openExternal(info.installerUrl);
+      } else {
+        btnDownloadInstaller.classList.add('hidden');
+      }
+    }
+
+    if (btnOpenRelease) {
+      if (info.releaseUrl) {
+        btnOpenRelease.classList.remove('hidden');
+        btnOpenRelease.onclick = () => window.overlayAPI.openExternal(info.releaseUrl);
+      }
+    }
+
+    showNotification(`🎉 Доступно обновление ${info.latestVersion}! Откройте [⚙️] для скачивания`, 4000);
+  } else {
+    if (updateStatusText) {
+      updateStatusText.textContent = `✅ У вас установлена актуальная версия (v${info.currentVersion || ''})`;
+      updateStatusText.className = 'update-status-text';
+    }
+    if (btnDownloadPortable) btnDownloadPortable.classList.add('hidden');
+    if (btnDownloadInstaller) btnDownloadInstaller.classList.add('hidden');
+    if (btnOpenRelease) btnOpenRelease.classList.add('hidden');
+    if (btnUpdateBadge) btnUpdateBadge.classList.add('hidden');
+  }
+}
+
+if (btnCheckUpdates) {
+  btnCheckUpdates.addEventListener('click', async () => {
+    btnCheckUpdates.disabled = true;
+    const oldText = btnCheckUpdates.textContent;
+    btnCheckUpdates.textContent = '⏳ Проверка...';
+    if (updateStatusText) {
+      updateStatusText.textContent = '🔍 Проверяем релизы на GitHub...';
+      updateStatusText.className = 'update-status-text';
+    }
+
+    try {
+      const info = await window.overlayAPI.checkForUpdates();
+      renderUpdateInfo(info);
+      if (!info.hasUpdate && info.success) {
+        showNotification('✅ У вас установлена актуальная версия');
+      }
+    } catch (err) {
+      if (updateStatusText) {
+        updateStatusText.textContent = `⚠️ Ошибка: ${err.message}`;
+        updateStatusText.className = 'update-status-text error';
+      }
+    } finally {
+      btnCheckUpdates.disabled = false;
+      btnCheckUpdates.textContent = oldText;
+    }
+  });
+}
+
+if (btnUpdateBadge) {
+  btnUpdateBadge.addEventListener('click', () => {
+    openSettingsModal();
+    const section = document.getElementById('section-updates');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+}
+
 // ============ IPC Subscriptions ============
 window.overlayAPI.onOverlayStateChanged(({ isActive, hideMode, hotkey }) => {
   if (hotkey) currentSettings.hotkey = hotkey;
@@ -437,10 +555,25 @@ window.overlayAPI.onReloadWebview(() => {
   showNotification('🔄 Перезагрузка страницы...');
 });
 
+window.overlayAPI.onUpdateAvailable((info) => {
+  renderUpdateInfo(info);
+});
+
+window.overlayAPI.onUpdateCheckResult((info) => {
+  renderUpdateInfo(info);
+});
+
 // ============ Initialization ============
 async function init() {
-  const settings = await window.overlayAPI.getSettings();
+  const [settings, appVersion] = await Promise.all([
+    window.overlayAPI.getSettings(),
+    window.overlayAPI.getVersion(),
+  ]);
   populateSettingsUI(settings);
+
+  if (appVersionLabel && appVersion) {
+    appVersionLabel.textContent = `Текущая версия: v${appVersion}`;
+  }
 
   setTimeout(() => {
     showNotification(`🎮 Оверлей готов! Нажмите [${settings.hotkey || 'F2'}] для вызова в игре`, 3500);

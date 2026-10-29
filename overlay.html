@@ -13,6 +13,7 @@
       <span id="title-text">🎮 Game Overlay</span>
       <span id="status-badge" class="badge active" title="Текущий статус оверлея">🟢 Мышь активна [F2]</span>
       <span id="opacity-badge" class="badge opacity" title="Текущая непрозрачность">85%</span>
+      <button id="btn-update-badge" class="badge-update hidden" title="Нажмите, чтобы открыть меню обновления">🎉 Новая версия!</button>
     </div>
     <div id="title-bar-controls">
       <button id="btn-settings" title="Настройки оверлея">⚙️</button>
@@ -175,6 +176,23 @@
               <span class="checkbox-box"></span>
               <span class="checkbox-label">Показывать всплывающие уведомления</span>
             </label>
+          </div>
+        </section>
+
+        <!-- 7. Updates Section -->
+        <section class="setting-group" id="section-updates">
+          <div class="setting-header">
+            <span class="setting-title">🔄 Обновления программы</span>
+            <span class="setting-desc" id="app-version-label">Текущая версия: v2.0.0</span>
+          </div>
+          <div class="update-box">
+            <div id="update-status-text" class="update-status-text">Проверка релизов на GitHub доступна в один клик</div>
+            <div class="update-actions">
+              <button id="btn-check-updates" class="btn secondary">🔍 Проверить обновления</button>
+              <button id="btn-download-portable" class="btn primary hidden">📥 Скачать Portable (.exe)</button>
+              <button id="btn-download-installer" class="btn secondary hidden">📦 Скачать Installer (.exe)</button>
+              <button id="btn-open-release" class="btn secondary hidden">🌐 Релизы на GitHub</button>
+            </div>
           </div>
         </section>
       </div>
