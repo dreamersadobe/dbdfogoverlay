@@ -465,7 +465,7 @@ function renderUpdateInfo(info) {
     if (btnStartDownload) {
       btnStartDownload.classList.remove('hidden');
       btnStartDownload.disabled = false;
-      btnStartDownload.textContent = `⚡ Скачать обновление ${info.latestVersion}`;
+      btnStartDownload.textContent = `⚡ Скачать установщик ${info.latestVersion}`;
     }
 
     if (btnOpenRelease) {
@@ -606,7 +606,7 @@ window.overlayAPI.onDownloadProgress((data) => {
     if (btnInstallRestart) btnInstallRestart.classList.remove('hidden');
     if (btnShowInFolder) btnShowInFolder.classList.remove('hidden');
 
-    showNotification('✨ Обновление готово! Нажмите «Перезапустить и применить»', 5000);
+    showNotification('✨ Установщик готов! Нажмите «Запустить мастер установки»', 5000);
   } else if (data.status === 'cancelled') {
     if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
     if (btnCancelDownload) btnCancelDownload.classList.add('hidden');

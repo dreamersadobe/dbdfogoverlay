@@ -243,7 +243,7 @@ async function checkForUpdates() {
       if (installerAsset) installerUrl = installerAsset.browser_download_url;
     }
 
-    const downloadUrl = portableUrl || installerUrl || releaseUrl;
+    const downloadUrl = installerUrl || portableUrl || releaseUrl;
     const hasUpdate = isNewerVersion(latestTag, currentVersion);
 
     cachedUpdateInfo = {
@@ -595,7 +595,7 @@ ipcMain.handle('download-update', async (event, customUrl) => {
     const rawFileName = path.basename(parsedUrl.pathname);
     const fileName = (rawFileName && rawFileName.endsWith('.exe'))
       ? rawFileName
-      : `Game-Overlay-${cachedUpdateInfo ? cachedUpdateInfo.latestVersion : 'Update'}.exe`;
+      : `Game-Overlay-Setup-${cachedUpdateInfo ? cachedUpdateInfo.latestVersion : 'Update'}.exe`;
     const tempDir = app.getPath('temp');
     downloadedUpdatePath = path.join(tempDir, fileName);
 

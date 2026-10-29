@@ -1,11 +1,11 @@
 {
   "name": "game-overlay",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Universal in-game overlay for displaying any website on top of your game",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable"
+    "build": "electron-builder --win nsis"
   },
   "author": "DBDFogOverlay",
   "license": "MIT",
@@ -24,12 +24,17 @@
     "productName": "Game Overlay",
     "win": {
       "target": [
-        "portable"
+        "nsis"
       ],
       "icon": "assets/icon.png"
     },
-    "portable": {
-      "artifactName": "${productName}-${version}.${ext}"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Game Overlay",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "files": [
       "main.js",
