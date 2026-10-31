@@ -1,6 +1,6 @@
 {
   "name": "game-overlay",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "Universal in-game overlay for displaying any website on top of your game",
   "main": "main.js",
   "scripts": {

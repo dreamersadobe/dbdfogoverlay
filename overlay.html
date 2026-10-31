@@ -4,26 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Overlay</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="overlay.css">
 </head>
 <body>
   <!-- Title bar for dragging and controls -->
   <header id="title-bar">
     <div id="title-bar-drag">
-      <span id="title-text">🎮 Game Overlay</span>
-      <span id="status-badge" class="badge active" title="Текущий статус оверлея">🟢 Мышь активна [F2]</span>
+      <div class="brand">
+        <span class="brand-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="3"/>
+            <path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01"/>
+          </svg>
+        </span>
+        <span id="title-text">Game Overlay</span>
+      </div>
+      <span id="status-badge" class="badge active" title="Текущий статус оверлея">Мышь активна [F2]</span>
       <span id="opacity-badge" class="badge opacity" title="Текущая непрозрачность">85%</span>
-      <button id="btn-update-badge" class="badge-update hidden" title="Нажмите, чтобы открыть меню обновления">🎉 Новая версия!</button>
+      <button id="btn-update-badge" class="badge-update hidden" title="Нажмите, чтобы открыть меню обновления">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10m0 0l3-3m-3 3L9 9"/><path d="M2 17l.62 2.48A2 2 0 0 0 4.56 21h14.88a2 2 0 0 0 1.94-1.52L22 17"/></svg>
+        <span>Новая версия!</span>
+      </button>
     </div>
     <div id="title-bar-controls">
-      <button id="btn-settings" title="Настройки оверлея">⚙️</button>
-      <button id="btn-reload" title="Перезагрузить страницу">🔄</button>
-      <button id="btn-close" title="Свернуть / Вернуться в игру (Esc)">✖</button>
+      <button id="btn-settings" title="Настройки оверлея">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+      <button id="btn-reload" title="Перезагрузить страницу">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+          <path d="M16 16h5v5"/>
+        </svg>
+      </button>
+      <button id="btn-close" title="Свернуть / Вернуться в игру (Esc)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
   </header>
 
   <!-- Notification popup for feedback -->
   <div id="notification" class="notification hidden" aria-live="polite">
+    <span class="notification-dot"></span>
     <span id="notification-text"></span>
   </div>
 
@@ -42,29 +75,44 @@
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title" id="settings-title">
-          <span>⚙️ Настройки оверлея</span>
+          <span class="modal-title-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </span>
+          <span>Настройки оверлея</span>
         </div>
-        <button id="btn-modal-close" class="modal-close-btn" title="Закрыть">✖</button>
+        <button id="btn-modal-close" class="modal-close-btn" title="Закрыть">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       <div class="modal-body">
-        <!-- 1. URL Section (moved to top for multi-overlay use) -->
+        <!-- 1. URL Section -->
         <section class="setting-group highlight-box">
           <div class="setting-header">
-            <span class="setting-title">🌐 Адрес сайта</span>
-            <span class="setting-desc">Вставьте ссылку на любой сайт — он будет отображаться поверх игры в оверлее.</span>
+            <span class="setting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span>Адрес сайта</span>
+            </span>
+            <span class="setting-desc">Вставьте ссылку на любой сайт — он отобразится поверх игры в оверлее.</span>
           </div>
           <div class="url-input-box">
-            <input type="url" id="input-url" value="" placeholder="https://example.com">
-            <button id="btn-save-url" class="btn primary">Открыть</button>
+            <input type="url" id="input-url" value="" placeholder="https://example.com" spellcheck="false" autocomplete="off">
+            <button id="btn-save-url" class="btn primary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <span>Открыть</span>
+            </button>
           </div>
           <div class="url-presets">
-            <span class="presets-label">Быстрые ссылки:</span>
+            <span class="presets-label">Быстрые закладки:</span>
             <div class="presets-buttons">
               <button type="button" class="preset-url" data-url="https://dbdfog.ru/survivor-builds">DBD Fog</button>
               <button type="button" class="preset-url" data-url="https://wiki.deadbydaylight.com">DBD Wiki</button>
               <button type="button" class="preset-url" data-url="https://youtube.com">YouTube</button>
               <button type="button" class="preset-url" data-url="https://discord.com/app">Discord</button>
+              <button type="button" class="preset-url" data-url="https://twitch.tv">Twitch</button>
             </div>
           </div>
         </section>
@@ -72,8 +120,11 @@
         <!-- 2. Hotkey Section -->
         <section class="setting-group">
           <div class="setting-header">
-            <span class="setting-title">⌨️ Клавиша вызова (Триггер)</span>
-            <span class="setting-desc">Нажмите эту клавишу в игре — окно мгновенно появится и захватит мышь. Повторное нажатие вернет управление в игру.</span>
+            <span class="setting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+              <span>Клавиша вызова (Триггер)</span>
+            </span>
+            <span class="setting-desc">Нажмите эту клавишу в игре для открытия оверлея. Повторное нажатие вернет курсор в игру.</span>
           </div>
 
           <div class="hotkey-recorder-box">
@@ -86,11 +137,11 @@
           <div class="presets-row">
             <span class="presets-label">Быстрый выбор:</span>
             <div class="presets-buttons">
-              <button type="button" class="preset-key" data-key="F2">F2</button>
-              <button type="button" class="preset-key" data-key="F3">F3</button>
-              <button type="button" class="preset-key" data-key="F4">F4</button>
-              <button type="button" class="preset-key" data-key="`">~ (Ё)</button>
-              <button type="button" class="preset-key" data-key="Alt+F1">Alt+F1</button>
+              <button type="button" class="preset-key" data-key="F2"><kbd>F2</kbd></button>
+              <button type="button" class="preset-key" data-key="F3"><kbd>F3</kbd></button>
+              <button type="button" class="preset-key" data-key="F4"><kbd>F4</kbd></button>
+              <button type="button" class="preset-key" data-key="`"><kbd>~ (Ё)</kbd></button>
+              <button type="button" class="preset-key" data-key="Alt+F1"><kbd>Alt+F1</kbd></button>
             </div>
           </div>
         </section>
@@ -98,8 +149,11 @@
         <!-- 3. Mode Section -->
         <section class="setting-group">
           <div class="setting-header">
-            <span class="setting-title">🪟 Режим при скрытии</span>
-            <span class="setting-desc">Что происходит при повторном нажатии клавиши вызова:</span>
+            <span class="setting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              <span>Поведение при скрытии</span>
+            </span>
+            <span class="setting-desc">Что происходит при повторном нажатии клавиши триггера:</span>
           </div>
           <div class="radio-cards">
             <label class="radio-card">
@@ -107,8 +161,8 @@
               <div class="card-ui">
                 <span class="card-radio-dot"></span>
                 <div class="card-text">
-                  <strong class="card-title">🙈 Полностью скрывать окно</strong>
-                  <span class="card-desc">Оверлей исчезает с экрана и не мешает обзору в игре</span>
+                  <strong class="card-title">Полное скрытие окна</strong>
+                  <span class="card-desc">Окно исчезает с экрана и не мешает обзору в игре</span>
                 </div>
               </div>
             </label>
@@ -118,8 +172,8 @@
               <div class="card-ui">
                 <span class="card-radio-dot"></span>
                 <div class="card-text">
-                  <strong class="card-title">👁️ Сквозной режим (HUD поверх игры)</strong>
-                  <span class="card-desc">Окно остается полупрозрачным, но все клики проходят сквозь него прямо в игру</span>
+                  <strong class="card-title">Сквозной HUD поверх игры</strong>
+                  <span class="card-desc">Окно остается полупрозрачным, а клики мыши проходят прямо в игру</span>
                 </div>
               </div>
             </label>
@@ -129,13 +183,16 @@
         <!-- 4. Opacity Section -->
         <section class="setting-group">
           <div class="setting-header-inline">
-            <span class="setting-title">🔅 Прозрачность оверлея</span>
+            <span class="setting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              <span>Непрозрачность оверлея</span>
+            </span>
             <span id="opacity-slider-val" class="slider-badge">85%</span>
           </div>
           <input type="range" id="opacity-slider" min="20" max="100" step="5" value="85" class="custom-slider">
           <div class="slider-ticks">
             <span>20% (Прозрачно)</span>
-            <span>85% (Оптимально)</span>
+            <span>85% (Рекомендуется)</span>
             <span>100% (Непрозрачно)</span>
           </div>
         </section>
@@ -143,27 +200,35 @@
         <!-- 5. Window Size and Position -->
         <section class="setting-group">
           <div class="setting-header">
-            <span class="setting-title">📐 Размер и положение</span>
-            <span class="setting-desc">Положение и размер сохраняются автоматически при перетаскивании за шапку и растягивании окна.</span>
+            <span class="setting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6m0-6L14 10M9 21H3v-6m0 6l7-7"/></svg>
+              <span>Размер и положение</span>
+            </span>
+            <span class="setting-desc">Размер и позиция также сохраняются автоматически при перемещении за шапку.</span>
           </div>
           <div class="size-controls">
             <div class="input-field">
-              <label for="input-width">Ширина</label>
+              <label for="input-width">Ширина (px)</label>
               <input type="number" id="input-width" min="320" max="2560" step="20" value="1280">
             </div>
             <div class="input-field">
-              <label for="input-height">Высота</label>
+              <label for="input-height">Высота (px)</label>
               <input type="number" id="input-height" min="320" max="1440" step="20" value="720">
             </div>
-            <button id="btn-apply-size" class="btn secondary">Применить</button>
-            <button id="btn-reset-pos" class="btn secondary" title="Сбросить в центр (1280x720)">📍 Сбросить</button>
+            <div class="size-buttons">
+              <button id="btn-apply-size" class="btn secondary">Применить</button>
+              <button id="btn-reset-pos" class="btn secondary" title="Сбросить в центр экрана (1280x720)">Сбросить</button>
+            </div>
           </div>
         </section>
 
         <!-- 6. System & Notifications -->
         <section class="setting-group">
           <div class="setting-header">
-            <span class="setting-title">🚀 Система и уведомления</span>
+            <span class="setting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span>Система и уведомления</span>
+            </span>
           </div>
           <div class="checkboxes-list">
             <label class="custom-checkbox">
@@ -182,8 +247,11 @@
         <!-- 7. Updates Section -->
         <section class="setting-group" id="section-updates">
           <div class="setting-header">
-            <span class="setting-title">🔄 Обновления программы</span>
-            <span class="setting-desc" id="app-version-label">Текущая версия: v2.1.0</span>
+            <span class="setting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span>Обновления программы</span>
+            </span>
+            <span class="setting-desc" id="app-version-label">Текущая версия: v2.3.0</span>
           </div>
           <div class="update-box">
             <div id="update-status-text" class="update-status-text">Проверка наличия обновлений...</div>
@@ -204,12 +272,12 @@
             </div>
 
             <div class="update-actions">
-              <button id="btn-check-updates" class="btn secondary">🔍 Проверить обновления</button>
-              <button id="btn-start-download" class="btn primary hidden">⚡ Скачать мастер установки</button>
-              <button id="btn-cancel-download" class="btn danger hidden">✖ Отмена</button>
-              <button id="btn-install-restart" class="btn success hidden">🚀 Запустить мастер установки</button>
-              <button id="btn-show-in-folder" class="btn secondary hidden">📂 Показать в папке</button>
-              <button id="btn-open-release" class="btn secondary hidden">🌐 GitHub Releases</button>
+              <button id="btn-check-updates" class="btn secondary">Проверить обновления</button>
+              <button id="btn-start-download" class="btn primary hidden">Скачать установщик</button>
+              <button id="btn-cancel-download" class="btn danger hidden">Отмена</button>
+              <button id="btn-install-restart" class="btn success hidden">Запустить установщик</button>
+              <button id="btn-show-in-folder" class="btn secondary hidden">Показать в папке</button>
+              <button id="btn-open-release" class="btn secondary hidden">GitHub Releases</button>
             </div>
           </div>
         </section>

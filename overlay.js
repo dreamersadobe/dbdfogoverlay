@@ -90,11 +90,11 @@ function showNotification(text, duration = 2200) {
 function updateStatusBadge(isActive, hotkey, hideMode) {
   const keyLabel = hotkey || currentSettings.hotkey || 'F2';
   if (isActive) {
-    statusBadge.textContent = `🟢 Мышь активна [${keyLabel}]`;
+    statusBadge.textContent = `Мышь активна [${keyLabel}]`;
     statusBadge.className = 'badge active';
     statusBadge.title = `Нажмите ${keyLabel} или Esc, чтобы вернуть управление в игру`;
   } else {
-    statusBadge.textContent = `🟡 HUD [${keyLabel}]`;
+    statusBadge.textContent = `HUD [${keyLabel}]`;
     statusBadge.className = 'badge hud';
     statusBadge.title = `Нажмите ${keyLabel}, чтобы захватить мышь`;
   }
@@ -312,7 +312,7 @@ btnClose.addEventListener('click', () => {
 
 btnReload.addEventListener('click', () => {
   siteFrame.src = currentSettings.url || 'about:blank';
-  showNotification('🔄 Перезагрузка страницы...');
+  showNotification('Перезагрузка страницы...');
 });
 
 // Hotkey recorder button
@@ -340,7 +340,7 @@ presetUrls.forEach((btn) => {
     currentSettings.url = url;
     await window.overlayAPI.saveSettings({ url });
     siteFrame.src = url;
-    showNotification(`🌐 Загружается: ${url}`);
+    showNotification(`Загружается: ${url}`);
   });
 });
 
@@ -353,8 +353,8 @@ modeRadios.forEach((radio) => {
       await window.overlayAPI.saveSettings({ hideMode: mode });
       showNotification(
         mode === 'hide'
-          ? '🙈 Режим: Полное скрытие оверлея'
-          : '👁️ Режим: Сквозной HUD поверх игры'
+          ? 'Режим: Полное скрытие оверлея'
+          : 'Режим: Сквозной HUD поверх игры'
       );
     }
   });
@@ -385,20 +385,20 @@ btnResetPos.addEventListener('click', async () => {
     inputWidth.value = bounds.width;
     inputHeight.value = bounds.height;
   }
-  showNotification('📍 Позиция и размер сброшены');
+  showNotification('Позиция и размер сброшены');
 });
 
 // URL — open button
 btnSaveUrl.addEventListener('click', async () => {
   let url = inputUrl.value.trim();
-  if (!url) return showNotification('⚠️ Введите URL сайта');
+  if (!url) return showNotification('Введите URL сайта');
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
   inputUrl.value = url;
   currentSettings.url = url;
   await window.overlayAPI.saveSettings({ url });
   siteFrame.src = url;
-  showNotification(`🌐 Загружается: ${url}`);
+  showNotification(`Загружается: ${url}`);
 });
 
 // Also allow pressing Enter in URL input to navigate
@@ -439,7 +439,7 @@ function renderUpdateInfo(info) {
 
   if (!info.success && info.error) {
     if (updateStatusText) {
-      updateStatusText.textContent = `⚠️ ${info.error}`;
+      updateStatusText.textContent = `${info.error}`;
       updateStatusText.className = 'update-status-text error';
     }
     if (btnStartDownload) btnStartDownload.classList.add('hidden');
@@ -453,19 +453,19 @@ function renderUpdateInfo(info) {
 
   if (info.hasUpdate) {
     if (updateStatusText) {
-      updateStatusText.textContent = `🎉 Доступна новая версия: ${info.latestVersion}!`;
+      updateStatusText.textContent = `Доступна новая версия: ${info.latestVersion}`;
       updateStatusText.className = 'update-status-text has-update';
     }
 
     if (btnUpdateBadge) {
       btnUpdateBadge.classList.remove('hidden');
-      btnUpdateBadge.textContent = `🎉 Доступно ${info.latestVersion}`;
+      btnUpdateBadge.textContent = `Доступно ${info.latestVersion}`;
     }
 
     if (btnStartDownload) {
       btnStartDownload.classList.remove('hidden');
       btnStartDownload.disabled = false;
-      btnStartDownload.textContent = `⚡ Скачать установщик ${info.latestVersion}`;
+      btnStartDownload.textContent = `Скачать установщик ${info.latestVersion}`;
     }
 
     if (btnOpenRelease) {
@@ -480,10 +480,10 @@ function renderUpdateInfo(info) {
     if (btnShowInFolder) btnShowInFolder.classList.add('hidden');
     if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
 
-    showNotification(`🎉 Доступно обновление ${info.latestVersion}! Откройте [⚙️] для скачивания`, 4000);
+    showNotification(`Доступно обновление ${info.latestVersion}! Откройте настройки для скачивания`, 4000);
   } else {
     if (updateStatusText) {
-      updateStatusText.textContent = `✅ У вас установлена актуальная версия (v${info.currentVersion || ''})`;
+      updateStatusText.textContent = `У вас установлена актуальная версия (v${info.currentVersion || ''})`;
       updateStatusText.className = 'update-status-text';
     }
     if (btnStartDownload) btnStartDownload.classList.add('hidden');
@@ -500,9 +500,9 @@ if (btnCheckUpdates) {
   btnCheckUpdates.addEventListener('click', async () => {
     btnCheckUpdates.disabled = true;
     const oldText = btnCheckUpdates.textContent;
-    btnCheckUpdates.textContent = '⏳ Проверка...';
+    btnCheckUpdates.textContent = 'Проверка...';
     if (updateStatusText) {
-      updateStatusText.textContent = '🔍 Проверяем релизы на GitHub...';
+      updateStatusText.textContent = 'Проверяем релизы на GitHub...';
       updateStatusText.className = 'update-status-text';
     }
 
@@ -510,11 +510,11 @@ if (btnCheckUpdates) {
       const info = await window.overlayAPI.checkForUpdates();
       renderUpdateInfo(info);
       if (!info.hasUpdate && info.success) {
-        showNotification('✅ У вас установлена актуальная версия');
+        showNotification('У вас установлена актуальная версия');
       }
     } catch (err) {
       if (updateStatusText) {
-        updateStatusText.textContent = `⚠️ Ошибка: ${err.message}`;
+        updateStatusText.textContent = `Ошибка: ${err.message}`;
         updateStatusText.className = 'update-status-text error';
       }
     } finally {
@@ -528,7 +528,7 @@ if (btnCheckUpdates) {
 if (btnStartDownload) {
   btnStartDownload.addEventListener('click', async () => {
     if (!currentUpdateInfo || !currentUpdateInfo.downloadUrl) {
-      showNotification('⚠️ Ссылка для загрузки не найдена');
+      showNotification('Ссылка для загрузки не найдена');
       return;
     }
 
@@ -541,7 +541,7 @@ if (btnStartDownload) {
     updateProgressFill.style.width = '0%';
     updateProgressDetails.textContent = 'Подключение к GitHub...';
     updateProgressSpeed.textContent = '';
-    updateStatusText.textContent = '⏳ Загрузка обновления...';
+    updateStatusText.textContent = 'Загрузка обновления...';
     updateStatusText.className = 'update-status-text';
 
     try {
@@ -550,7 +550,7 @@ if (btnStartDownload) {
         throw new Error(res.error || 'Ошибка скачивания файла');
       }
     } catch (err) {
-      updateStatusText.textContent = `⚠️ ${err.message}`;
+      updateStatusText.textContent = `${err.message}`;
       updateStatusText.className = 'update-status-text error';
       btnStartDownload.classList.remove('hidden');
       if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
@@ -576,7 +576,7 @@ if (btnInstallRestart) {
   btnInstallRestart.addEventListener('click', async () => {
     const res = await window.overlayAPI.applyUpdate();
     if (!res.success) {
-      showNotification(`⚠️ ${res.error || 'Не удалось применить обновление'}`);
+      showNotification(`${res.error || 'Не удалось применить обновление'}`);
     }
   });
 }
@@ -598,7 +598,7 @@ window.overlayAPI.onDownloadProgress((data) => {
   } else if (data.status === 'completed') {
     updateProgressPercent.textContent = '100%';
     updateProgressFill.style.width = '100%';
-    updateStatusText.textContent = '✨ Обновление успешно скачано и готово к установке!';
+    updateStatusText.textContent = 'Обновление скачано и готово к установке';
     updateStatusText.className = 'update-status-text has-update';
 
     if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
@@ -606,7 +606,7 @@ window.overlayAPI.onDownloadProgress((data) => {
     if (btnInstallRestart) btnInstallRestart.classList.remove('hidden');
     if (btnShowInFolder) btnShowInFolder.classList.remove('hidden');
 
-    showNotification('✨ Установщик готов! Нажмите «Запустить мастер установки»', 5000);
+    showNotification('Установщик готов! Нажмите «Запустить установщик»', 5000);
   } else if (data.status === 'cancelled') {
     if (updateProgressContainer) updateProgressContainer.classList.add('hidden');
     if (btnCancelDownload) btnCancelDownload.classList.add('hidden');
@@ -632,11 +632,11 @@ window.overlayAPI.onOverlayStateChanged(({ isActive, hideMode, hotkey }) => {
   updateStatusBadge(isActive, currentSettings.hotkey, currentSettings.hideMode);
 
   if (isActive) {
-    showNotification(`🎮 Оверлей активен (${currentSettings.hotkey} — скрыть)`);
+    showNotification(`Оверлей активен (${currentSettings.hotkey} — скрыть)`);
   } else {
     closeSettingsModal();
     if (currentSettings.hideMode === 'clickthrough') {
-      showNotification('🔒 Мышь освобождена — клики идут в игру');
+      showNotification('Мышь освобождена — клики идут в игру');
     }
   }
 });
@@ -651,7 +651,7 @@ window.overlayAPI.onOpenSettings(() => {
 
 window.overlayAPI.onReloadWebview(() => {
   siteFrame.src = currentSettings.url || 'about:blank';
-  showNotification('🔄 Перезагрузка страницы...');
+  showNotification('Перезагрузка страницы...');
 });
 
 window.overlayAPI.onUpdateAvailable((info) => {
@@ -675,7 +675,7 @@ async function init() {
   }
 
   setTimeout(() => {
-    showNotification(`🎮 Оверлей готов! Нажмите [${settings.hotkey || 'F2'}] для вызова в игре`, 3500);
+    showNotification(`Оверлей готов! Нажмите [${settings.hotkey || 'F2'}] для вызова в игре`, 3500);
   }, 1000);
 }
 
